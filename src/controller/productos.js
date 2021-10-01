@@ -1,6 +1,6 @@
 import {Productos} from '../persistencia/productos'
-
-class ProductosService {
+import { ProductoAPI } from '../api/productos';
+class ProductosControler {
     //Leer devuelve false si no hay productos y los productos si los hay
     leer(){
         return Productos.getAll()
@@ -8,6 +8,18 @@ class ProductosService {
     obtenerUnProducto(idDelProducto)
     {
         return Productos.get(idDelProducto);
+    }
+    leerDesdeApi(){
+        return ProductoAPI.get()
+    }
+    generar(cant){
+
+        for(let i = 0 ;i<cant;i++){
+            console.log("this.data");
+            ProductoAPI.post()
+        }
+
+
     }
     agregar(unProducto){
 
@@ -23,4 +35,4 @@ class ProductosService {
     }
 }
 
-export const productosService = new ProductosService();
+export const productosControler = new ProductosControler();

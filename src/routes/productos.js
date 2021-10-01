@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { socketService } from '../services/socket';
-import { productosService } from '../services/productos';
+import { productosControler } from '../controller/productos';
 
 const miRouter = Router();
 
@@ -8,7 +8,7 @@ miRouter.get('/listar',async (req, res) => {
     /* 
         Responde con los productos cargados, si los hay
     */
-    let productos= await productosService.leer();
+    let productos= await productosControler.leer();
     if(productos.length===0){
         return res.status(404).json({
             error:"No hay productos cargados"
@@ -23,13 +23,13 @@ miRouter.get('/listar/:id',async (req, res) => {
         Responde con el producto correspondiente al 
         id buscado en caso de encontrarlo
     */
-    let productos= await productosService.leer();
+    let productos= await productosControler.leer();
     if(productos.length===0){
         return res.status(404).json({
             error:"No hay productos cargados"
         });
     }
-    let productoBuscado=await productosService.obtenerUnProducto(req.params.id);
+    let productoBuscado=await productosControler.obtenerUnProducto(req.params.id);
     if(!productoBuscado){
         return res.status(404).json({
             error:"No hay productos cargados"
@@ -44,6 +44,23 @@ miRouter.get('/listar/:id',async (req, res) => {
         return res.status(201).json(productoBuscado);
 })
 
+
+miRouter.get('/vista-test',(req,res) => {
+    let productos=productosControler.leerDesdeApi();
+    if(productos.length===0){
+       return res.json({msg:"no hay productos"})
+    }
+    return res.json({data:productos})
+})
+miRouter.post('/vista-test',(req,res) => {
+    const cant = Number(req.query.cant) ? Number(req.query.cant) : 10;
+
+    console.log(req.query);
+    productosControler.generar(cant)
+    return res.json({msg:`se generaron ${cant} productos aleatoreos`})
+})
+
+
 miRouter.post('/guardar',async (req,res)=>{
     /* 
         Guarda un producto y responde 
@@ -54,7 +71,7 @@ miRouter.post('/guardar',async (req,res)=>{
     
     productoIngresado.precio = parseInt(productoIngresado.precio)
 
-    productoIngresado =await productosService.agregar(productoIngresado);
+    productoIngresado =await productosControler.agregar(productoIngresado);
     
     const myWSServer = socketService.getServer();
 
@@ -67,7 +84,7 @@ miRouter.put('/actualizar/:id',async (req, res) =>{
     /* 
         Actualiza un producto y responde con el producto actualizado
     */
-    let productos= await productosService.leer();
+    let productos= await productosControler.leer();
     if(productos.length===0){
         return res.status(404).json({
             error:"No hay productos cargados"
@@ -75,7 +92,7 @@ miRouter.put('/actualizar/:id',async (req, res) =>{
     }
     let productoIngresado= req.body;
     let idBuscado= req.params.id;
-    let data = await productosService.actualizar(idBuscado,productoIngresado)
+    let data = await productosControler.actualizar(idBuscado,productoIngresado)
     if(!data){
         return res.status(404).json({
             error:"No hay productos cargados"
@@ -96,15 +113,15 @@ miRouter.delete('/borrar/:id',async (req, res) => {
     /* 
         Elimina un producto y responde con el producto eliminado
     */
-    let productos= await productosService.leer();
+    let productos= await productosControler.leer();
     if(productos.length===0){
         return res.status(404).json({
             error:"No hay productos cargados"
         });
     }
     let idBuscado= req.params.id;
-    let productoBorrado=await productosService.obtenerUnProducto(req.params.id);
-    let data = await productosService.eliminar(idBuscado)
+    let productoBorrado=await productosControler.obtenerUnProducto(req.params.id);
+    let data = await productosControler.eliminar(idBuscado)
     console.log(data);
     if(!data){
         return res.status(404).json({
@@ -115,4 +132,5 @@ miRouter.delete('/borrar/:id',async (req, res) => {
         return res.status(201).json(productoBorrado);    
     }
 })
+
 export default miRouter;

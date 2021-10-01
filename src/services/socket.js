@@ -1,5 +1,4 @@
 import socketIo, { Socket } from 'socket.io'
-import { productosService } from './productos';
 import { formatoMensaje } from '../utils/mensajes'
 import { mensajesService } from './mensajes'
 
